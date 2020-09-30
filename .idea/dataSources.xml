@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="pdal-measure@163.18.69.14" uuid="1403a334-d4eb-46c4-93b5-6c4a8a22bc7b">
+      <driver-ref>mysql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://163.18.69.14:3306/pdal-measure</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="pdal-measurement@163.18.69.14" uuid="726f727d-adbe-4474-9113-45bd84eba87e">
+      <driver-ref>mysql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://163.18.69.14:3306/pdal-measurement</jdbc-url>
+    </data-source>
+  </component>
+</project>

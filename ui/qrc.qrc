@@ -1,0 +1,20 @@
+<RCC>
+  <qresource prefix="newPrefix">
+    <file>D:/GitHub/pythonProject/mp_logo.png</file>
+  </qresource>
+  <qresource prefix="newPrefix">
+    <file>C:/Users/PDAL-00/Desktop/UPDAT.jpg</file>
+  </qresource>
+  <qresource prefix="newPrefix">
+    <file>C:/Users/PDAL-00/Desktop/NOGO.PNG</file>
+  </qresource>
+  <qresource prefix="newPrefix">
+    <file>ico.ico</file>
+  </qresource>
+  <qresource prefix="newPrefix">
+    <file>C:/Users/PDAL-00/Desktop/po.png</file>
+  </qresource>
+  <qresource prefix="newPrefix">
+    <file>C:/Users/PDAL-00/Desktop/GO.PNG</file>
+  </qresource>
+</RCC>
