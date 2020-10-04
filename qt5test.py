@@ -105,8 +105,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         print("double_clicked")
 
     def value_insert(self):
-        # try:
-        if self.double_clicked_check == True :
+        try:
+            if self.double_clicked_check == True :
                 self.measure_time = time.strftime("%Y-%m-%d  %H:%M:%S", time.localtime())  # 量測數值日期
                 self.row = self.ui.tableWidget_measure.currentRow()
                 self.colunm = self.ui.tableWidget_measure.currentColumn()
@@ -173,29 +173,30 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 print(self.drawing_data)
                 (measure_data, upper_data, lower_data) = measure.draw_measure(self.drawing_data)
                 self.drawing_data.clear()
+                print(self.drawing_data)
                 print(measure_data, upper_data, lower_data)
-                self.plot_(measure_data, upper_data, lower_data)
-            # else:
-            #     print("沒點兩下")
-            #     pass
-        # except:
-        #     print("輸入量測資料空白")
-        #     pass
+                self.plot_(upper_data, lower_data, measure_data)
+            else:
+                print("沒點兩下")
+                pass
+        except:
+            print("輸入量測資料空白")
 
-        # def keyPressEvent(self, e): #擷取信號
-        #     if e.key() == QtCore.Qt.Key_Enter:
-        #         print("enter")
+    def keyPressEvent(self, e): #擷取信號
+            if e.key() == QtCore.Qt.Key_Enter:
+                print("enter")
 
     def plot_(self, upper_data, lower_data, measure_data):
+        self.ui.figure.clf()
         ax = self.ui.figure.add_axes([0.125, 0.125, 0.8, 0.8])
-        ax.plot(measure_data, marker='.', mfc='w', label="量測數值") #ro = 定義點狀
-        ax.plot(upper_data, label="上限", mfc='w')
-        ax.plot(lower_data, label="下限", mfc='w')
+        ax.plot(measure_data, marker='o', mfc='w', label="量測數值", linewidth=2.5) #ro = 定義點狀
+        ax.plot(upper_data, label="上限", mfc='w', linestyle='dashed')
+        ax.plot(lower_data, label="下限", mfc='w', linestyle='dashed')
         plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']  #設置中文字 不然打不出來
         plt.xlabel("量測次數")
         plt.ylabel("量測數值")
         plt.legend()
-        # self.ui.canvas.draw()
+        self.ui.canvas.draw()
 
     def setmeasurevalue(self,value):
         print(value)
@@ -299,9 +300,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.tableWidget_project_item.setItem(0, 3, QTableWidgetItem(str(value_excellent)))
         self.ui.tableWidget_project_item.setItem(0, 4, QTableWidgetItem(str(value_inferior)))
         self.ui.tableWidget_project_item.setItem(0, 5, QTableWidgetItem(str(all)))
-        for item in self.measure_value_data:
-            if item[6] == self.ui.tableWidget_measure.item(1, column).text():
-                self.drawing_data.append(item)
+        # for item in self.measure_value_data:
+        #     if item[6] == self.ui.tableWidget_measure.item(1, column).text():
+        #         self.drawing_data.append(item)
         # (measure_data, upper_data, lower_data) = measure.draw_measure(self.drawing_data)
         # print(measure_data, upper_data, lower_data)
         # self.plot_(measure_data, upper_data, lower_data)
@@ -478,7 +479,7 @@ class TOOLWindow(QtWidgets.QWidget, Ui_Form):
                 return False
         get_internet_stat = internet_on()
 
-        # self.set_ok_con = True
+        self.set_ok_con = True
 
         if self.set_ok_con is None:
             self.reply = QMessageBox.question(self, 'Message', "量測量具還未設定", QMessageBox.Yes)
@@ -617,13 +618,15 @@ class measure_thread(QThread):
     def set_port(self, port):
         self.set_port = port
     def run(self):
-        while self.is_on:
-            returenlist = self.serial_test(self.set_port)
-            if self.is_on == False:
-                break
-            self.measure_value.emit(str(returenlist[0]))
-            self.measure_tool_name.emit(str(returenlist[1]))
-            self.measure_unit.emit(str(returenlist[2]))
+        pass
+
+        # while self.is_on:
+        #     returenlist = self.serial_test(self.set_port)
+        #     if self.is_on == False:
+        #         break
+        #     self.measure_value.emit(str(returenlist[0]))
+        #     self.measure_tool_name.emit(str(returenlist[1]))
+        #     self.measure_unit.emit(str(returenlist[2]))
 
     def serial_test(self,comnumber):
         COM_PORT = ("COM%s" % comnumber)  # 指定通訊埠名稱
