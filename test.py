@@ -1,8 +1,10 @@
-# from PyQt5 import QtWidgets
-# from pyqtgraph import PlotWidget, plot
-# import pyqtgraph as pg
-# import sys  # We need sys so that we can pass argv to QApplication
-# import os
+from PyQt5 import QtWidgets
+from pyqtgraph import PlotWidget, plot
+import pyqtgraph as pg
+import sys  # We need sys so that we can pass argv to QApplication
+import os
+a= "0x000001BDA09ECF78"
+print(str(a))
 #
 # class MainWindow(QtWidgets.QMainWindow):
 #
@@ -29,12 +31,12 @@
 # if __name__ == '__main__':
 #     main()
 
-import matplotlib.font_manager
-
-a = sorted([f.name for f in matplotlib.font_manager.fontManager.ttflist])
-
-for i in a:
-    print(i)
+# import matplotlib.font_manager
+#
+# a = sorted([f.name for f in matplotlib.font_manager.fontManager.ttflist])
+#
+# for i in a:
+#     print(i)
 # import sys
 # from MyMplCanvas import MyStaticMplCanvas, MyDynamicMplCanvas
 # from PyQt5.QtWidgets import QMainWindow, QMenu, QWidget, QMessageBox,\
