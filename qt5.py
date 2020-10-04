@@ -628,7 +628,7 @@ class Ui_toolcheck(object):
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
+        Form.setWindowTitle(_translate("Form", "無線量具測試"))
         self.Button_tool_connect.setText(_translate("Form", "量具連結\n"
                                                             "Measuring Tool Confirmation"))
         self.Button_tool_connect_rest.setText(_translate("Form", "量具重新連結\n"

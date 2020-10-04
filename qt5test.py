@@ -92,6 +92,46 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.label_item_image.setScaledContents(True)
 
 
+        self.ui.tableWidget_measure.doubleClicked.connect(self.double_clicked)
+        self.ui.tableWidget_measure.cellChanged.connect(self.value_insert)
+    def double_clicked(self):
+        print("double_clicked")
+
+    def value_insert(self):
+        self.measure_time = time.strftime("%Y-%m-%d  %H:%M:%S", time.localtime())  # 量測數值日期
+        self.row = self.ui.tableWidget_measure.currentRow()
+        self.colunm = self.ui.tableWidget_measure.currentColumn()
+        self.insert_value = self.ui.tableWidget_measure.item(self.row, self.colunm).text()
+        # print(self.ui.tableWidget_measure.item(self.row, self.colunm).text())
+        print(self.row, self.colunm)
+        self.gonogo = measure.measure_go_nogo_calculate(
+            float(self.ui.tableWidget_measure.item(2, self.column).text()),
+            float(self.ui.tableWidget_measure.item(3, self.column).text()),
+            float(self.insert_value)
+        )
+
+        self.ui.tableWidget_project_item.setItem(0, 0, QTableWidgetItem(
+            str(self.ui.tableWidget_measure.item(1, self.column).text())))
+        if self.gonogo == True:
+            self.ui.label_gonogo.setPixmap(QtGui.QPixmap(BASE_DIR + "\\GO.PNG"))
+            self.ui.tableWidget_project_item.setItem(0, 6, QTableWidgetItem("GO"))
+
+        elif self.gonogo == False:
+            self.ui.label_gonogo.setPixmap(QtGui.QPixmap(BASE_DIR + "\\NOGO.PNG"))
+            self.ui.tableWidget_project_item.setItem(0, 6, QTableWidgetItem("NOGO"))
+
+        self.ui.tableWidget_project_item.setItem(0, 1, QTableWidgetItem(self.measure_time))
+        self.measure_value_new_data = [self.insert_value,
+                                       self.ui.tableWidget_measure.item(3, self.column).text(),
+                                       self.ui.tableWidget_measure.item(1, self.column),
+                                       self.ui.tableWidget_measure.item(0, self.column)
+
+                                       ]
+
+    def keyPressEvent(self, e): #擷取信號
+        if e.key() == QtCore.Qt.Key_Enter:
+            print("enter")
+
     def plot_(self):
         ax = self.ui.figure.add_axes([0.125, 0.125, 0.8, 0.8])
         ax.plot([0.002, 0.0012, 0.003, 0.002, 0.002], marker='.', mfc='w', label="量測數值") #ro = 定義點狀
@@ -136,8 +176,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.tableWidget_project_item.setItem(0, 0, QTableWidgetItem(str(self.ui.tableWidget_measure.item(1, self.column).text())))
         if self.gonogo == True:
             self.ui.label_gonogo.setPixmap(QtGui.QPixmap(BASE_DIR + "\\GO.PNG"))
+            self.ui.tableWidget_project_item.setItem(0, 5, QTableWidgetItem("GO"))
         elif self.gonogo == False:
             self.ui.label_gonogo.setPixmap(QtGui.QPixmap(BASE_DIR + "\\NOGO.PNG"))
+            self.ui.tableWidget_project_item.setItem(0, 5, QTableWidgetItem("NOGO"))
 
 
 
@@ -333,6 +375,9 @@ class TOOLWindow(QtWidgets.QWidget, Ui_Form):
             except error.URLError as err:
                 return False
         get_internet_stat = internet_on()
+
+        self.set_ok_con = True
+
         if self.set_ok_con is None:
             self.reply = QMessageBox.question(self, 'Message', "量測量具還未設定", QMessageBox.Yes)
         if get_internet_stat is False:
@@ -470,13 +515,15 @@ class measure_thread(QThread):
     def set_port(self, port):
         self.set_port = port
     def run(self):
-        while self.is_on:
-            returenlist = self.serial_test(self.set_port)
-            if self.is_on == False:
-                break
-            self.measure_value.emit(str(returenlist[0]))
-            self.measure_tool_name.emit(str(returenlist[1]))
-            self.measure_unit.emit(str(returenlist[2]))
+        pass
+
+        # while self.is_on:
+        #     returenlist = self.serial_test(self.set_port)
+        #     if self.is_on == False:
+        #         break
+        #     self.measure_value.emit(str(returenlist[0]))
+        #     self.measure_tool_name.emit(str(returenlist[1]))
+        #     self.measure_unit.emit(str(returenlist[2]))
 
     def serial_test(self,comnumber):
         COM_PORT = ("COM%s" % comnumber)  # 指定通訊埠名稱

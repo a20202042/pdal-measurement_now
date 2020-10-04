@@ -7,7 +7,7 @@
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://163.18.69.14:3306/pdal-measure</jdbc-url>
     </data-source>
-    <data-source source="LOCAL" name="pdal-measurement@163.18.69.14" uuid="726f727d-adbe-4474-9113-45bd84eba87e">
+    <data-source source="LOCAL" name="pdal-measurement@163.18.69.14" uuid="878ea5ac-cb6a-494c-90da-20d8c4ff2b29">
       <driver-ref>mysql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
