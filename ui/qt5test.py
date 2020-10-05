@@ -59,11 +59,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # self.ui.tableWidget_project_item.setSelectionBehavior(self.ui.tableWidget_project_item.SelectRows)
 
         self.measure_value_item = ['量測屬性值', '量測日期', 'GO/NOGO']
-        self.ui.tableWidget_measure_value_item.setRowCount(3)
-        self.ui.tableWidget_measure_value_item.setColumnCount(1)
-        self.ui.tableWidget_measure_value_item.horizontalHeader().setVisible(False)
-        self.ui.tableWidget_measure_value_item.setVerticalHeaderLabels(self.measure_value_item)
-        self.ui.tableWidget_measure_value_item.setItem(0, 0, QTableWidgetItem('量測屬性質'))
+        self.ui.tableWidget_project_item.setRowCount(3)
+        self.ui.tableWidget_project_item.setColumnCount(1)
+        self.ui.tableWidget_project_item.horizontalHeader().setVisible(False)
+        self.ui.tableWidget_project_item.setVerticalHeaderLabels(self.measure_value_item)
+        self.ui.tableWidget_project_item.setItem(0, 0, QTableWidgetItem('量測屬性質'))
         # self.ui.tableWidget_measure_value_item.setEditTriggers(QAbstractItemView.NoEditTriggers)#不可編輯
         self.ui.tableWidget_measure_value_item.resizeRowsToContents()
         self.ui.tableWidget_measure_value_item.setSelectionBehavior(self.ui.tableWidget_measure_value_item.SelectRows)

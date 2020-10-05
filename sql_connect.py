@@ -47,23 +47,23 @@ class sql_connect:
         return list_data
 
     def sql_find_measure_item(self, project_name):
-        SQL = ("SELECT * "
+        SQL = ("SELECT mysite_measure_items.measurement_items,mysite_measure_items.upper_limit, mysite_measure_items.lower_limit, mysite_measure_items.specification_center,"
+               " mysite_measure_items.decimal_piaces, mysite_measure_items.measure_unit, mysite_measure_items.measure_points, mysite_measure_items.measure_number,"
+               " mysite_measure_items.too_name_id "
                " From  mysite_measure_items "
                " WHERE mysite_measure_items.project_measure_id"
                "=(SELECT mysite_project.id FROM mysite_project WHERE mysite_project.project_name='%s')" % project_name)
+        self.measure_item = ["量測專案名稱", "量測項目名稱", "量測數值上限", "量測數值下限", "量測數值中心",
+                             "量測小數點位數", "量測單位", "量測點數", "量測次數", "量具名稱"]
         self.cursor.execute(SQL)
         data = self.cursor.fetchall()
         list_data = []
         for item in data:
             data = list(item)
-            data.pop(-1)#圖片欄位
-            data.pop(-1)#base64圖片編碼
-            data.pop(0)#專案名稱
-            data.pop(-4)#專案 id
-            SQL = ("SELECT mysite_measuring_tool.toolname From  mysite_measuring_tool WHERE mysite_measuring_tool.id = %s" % data[-3])
+            SQL = ("SELECT mysite_measuring_tool.toolname From  mysite_measuring_tool WHERE mysite_measuring_tool.id = %s" % data[-1])
             self.cursor.execute(SQL)
             tool_name = self.cursor.fetchall()[0][0]
-            data.pop(-3) #量具名稱
+            data.pop(-1) #量具名稱
             data.append(tool_name)
             data.insert(0, project_name)
             list_data.append(data)
@@ -161,10 +161,9 @@ def save(file_name, base64_data, pict_type):
         jiema = base64.b64decode(base64_data)  # 解碼
         file.write(jiema)  # 將解碼資料寫入到片圖中
 
-# A = ['14.0', 'mm', '2020-09-15  15:53:55', '外徑', '測試專案一']
-# s.sql_inaert_value(A)
-
-
+s = sql_connect()
+a= s.sql_find_measure_item("測試")
+print(a)
 # all = s.sql_all_date("mysite_measure_values")
 # for i in all:
 #     for i_2 in i:
