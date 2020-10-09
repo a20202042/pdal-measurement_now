@@ -161,9 +161,6 @@ def save(file_name, base64_data, pict_type):
         jiema = base64.b64decode(base64_data)  # 解碼
         file.write(jiema)  # 將解碼資料寫入到片圖中
 
-s = sql_connect()
-a= s.sql_find_measure_item("測試")
-print(a)
 # all = s.sql_all_date("mysite_measure_values")
 # for i in all:
 #     for i_2 in i:

@@ -34,7 +34,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.measure_value.measure_value.connect(self.setmeasurevalue)
         self.com_name = gvar.system_com_name
         self.project_name = project_name
-        self.measure_item_data = measure_item_data
+        self.measurer = measurer
+        self.measure_item_data = []
         self.work_order_data = work_order_data
         print("專案名稱:%s"%self.project_name)
         print("工單設定:%s"%self.work_order_data)
@@ -55,7 +56,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.new = QtWidgets.QAction(QtGui.QIcon(BASE_DIR + "\\measure_choose.png"), "project_choose", self)
         self.tb.addAction(self.new)
         self.ui.label_gonogo.setPixmap(QtGui.QPixmap(BASE_DIR + "\\GO.png"))
-        self.ui.label_project_name.setText("專案名稱：%s"%project_name)
+        self.ui.label_gonogo.setScaledContents(True)
+        self.ui.label_project_name.setText("專案名稱：%s" % project_name)
+        self.ui.label_project_item_name_2.setText("量測人員：%s" % self.measurer)
 
         self.project_item = ["量測部位", "量測日期", "量測次數", "良數", "不良數", "總數", "GO/NOGO"]
         self.ui.tableWidget_project_item.setRowCount(len(self.project_item))
@@ -66,29 +69,53 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.tableWidget_project_item.setItem(0, 1, QTableWidgetItem(self.measure_time))
         self.ui.tableWidget_project_item.resizeColumnsToContents()
 
-        self.measure_item = ["專案名稱", "量測項目名稱", "量測數值上限", "量測數值下限", "量測數值中心",
-                             "量測小數點位數", "量測單位", "量測次數", "量測點數", "量具名稱"]
-        self.ui.tableWidget_measure_item.setRowCount(len(self.measure_item))
-        self.ui.tableWidget_measure_item.setColumnCount(len(self.measure_item_data))
-        self.ui.tableWidget_measure_item.setVerticalHeaderLabels(self.measure_item)
-        self.ui.tableWidget_measure_item.horizontalHeader().setVisible(False)
+        self.measure_item = ["量測項目名稱", "量測數值上限", "量測數值下限", "量測數值中心",
+                             "量測小數點位數", "量測單位", "量測次數", "量具名稱"]
+        measure_item_data_old = measure_item_data
+        # self.measure_item_data.clear()
+        for item in measure_item_data_old:
+            item.pop(0)
+            if int(item[7]) > 0:
+                number = int(item[6])
+                print("量測點數:%s" % number)
+                for i in range(1, number+1):
+                    self.item = item[:]
+                    self.item.insert(0, "%s - %s" % (item[0], i))
+                    self.item.pop(1)
+                    self.item.pop(-3)
+                    self.measure_item_data.append(self.item)
+        print(self.measure_item_data)
+        self.ui.tableWidget_measure.setRowCount(len(self.measure_item))
+        self.ui.tableWidget_measure.setColumnCount(len(self.measure_item_data))
+        self.ui.tableWidget_measure.setVerticalHeaderLabels(self.measure_item)
+        self.ui.tableWidget_measure.horizontalHeader().setVisible(False)
         for i in range(0, len(self.measure_item)):
             for i_2 in range(0, len(self.measure_item_data)):
-                data = QTableWidgetItem(str(measure_item_data[i_2][i]))
+                data = QTableWidgetItem(str(self.measure_item_data[i_2][i]))
                 data.setTextAlignment(QtCore.Qt.AlignHCenter)
-                self.ui.tableWidget_measure_item.setItem(i, i_2, data)
-        self.ui.tableWidget_measure_item.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+                self.ui.tableWidget_measure.setItem(i, i_2, data)
+        self.ui.tableWidget_measure.setEditTriggers(QtWidgets.QTableWidget.DoubleClicked)#不可編輯
 
-        self.ui.tableWidget_measure.setRowCount(int(self.measure_item_data[0][7]))#量測次數行數
-        if int(self.measure_item_data[0][7]) > int(1):
+
+        self.ui.tableWidget_measure.setRowCount(len(self.measure_item) + int(self.measure_item_data[0][6]))#量測次數行數
+        if int(self.measure_item_data[0][6]) > 1:
             self.measure_number_list = list()
-            for i in range(int(self.measure_item_data[0][7])):
+            for i in range(int(self.measure_item_data[0][6])):
                 measure_number = ("1 - %s" % (i+1))
                 self.measure_number_list.append(measure_number)
             print(self.measure_number_list)
-        self.ui.tableWidget_measure.setVerticalHeaderLabels(self.measure_number_list)#量測1-1設定
-        self.ui.tableWidget_measure.setColumnCount(int(1))
-        self.ui.tableWidget_measure.horizontalHeader().setVisible(False)# 隱藏表頭
+            # self.ui.tableWidget_project.resizeRowsToContents()  # 調整欄位大小
+        self.ui.tableWidget_measure.resizeRowsToContents() #調整欄位大小 (垂直縮小)
+        self.ui.tableWidget_measure.setVerticalHeaderLabels(self.measure_item + self.measure_number_list)#量測1-1設定
+
+
+        # self.ui.tableWidget_measure.setColumnCount(len(self.measure_item_data))
+        # self.measure_item_set = list()
+        # for item in self.measure_item_data:
+        #     self.measure_item_set.append(item[1])
+        # print(self.measure_item_set)
+        # self.ui.tableWidget_measure.setHorizontalHeaderLabels(self.measure_item_set)
+
 
         #量測部位圖片
         self.measure_image_item = self.sql.sql_all_image_item(self.project_name)
@@ -96,16 +123,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.label_item_image.setScaledContents(True)
 
         self.ui.tableWidget_measure.doubleClicked.connect(self.double_clicked)
-        self.ui.tableWidget_measure.cellChanged.connect(self.value_insert)
+        self.ui.tableWidget_measure.cellChanged.connect(self.value_insert) #輸入量測資料
 
     def double_clicked(self):
         self.row = self.ui.tableWidget_measure.currentRow()
         self.column = self.ui.tableWidget_measure.currentColumn()
         print(self.row, self.column)
-        print("double_clicked")
+        print("double_clicked R:%s C:%s"%(self.row, self.column))
 
     def value_insert(self):
-
         pass
     #     try:
     #             self.measure_time = time.strftime("%Y-%m-%d  %H:%M:%S", time.localtime())  # 量測數值日期
@@ -196,69 +222,114 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         plt.legend()
         self.ui.canvas.draw()
 
-    def setmeasurevalue(self, value): #鍵盤輸入值
+    def setmeasurevalue(self, value): #量具輸入
         self.value = value
         if self.row != self.ui.tableWidget_measure.currentRow() or self.row is None:
             self.number = 0
-        elif self.column != self.ui.tableWidget_measure.currentColumn() or self.row is None:
+        elif self.column != self.ui.tableWidget_measure.currentColumn() or self.column is None:
             self.number = 0
-
         self.row = self.ui.tableWidget_measure.currentRow()
         self.column = self.ui.tableWidget_measure.currentColumn()
-    #
-    #     if (self.number + self.row - 7) > len(self.measure_number_list): #剩餘一個空格時跳出下一個
-    #         number = int((self.row - 8 + self.number) / 3)  # 計算要增加幾項
-    #
-    #         for i in range(int(self.measure_item_data[0][7])):
-    #             measure_number = ("%s - %s" %(number + 1, i + 1))
-    #             self.measure_number_list.append(measure_number)
-    #             self.ui.tableWidget_measure.setRowCount(int(len(self.measure_item)) + int(len(self.measure_number_list)))
-    #             self.ui.tableWidget_measure.setVerticalHeaderLabels(self.measure_item + self.measure_number_list)  # 量測1-1設定
-    #
-    #     self.ui.tableWidget_measure.setItem(self.row + self.number, self.column, QTableWidgetItem(str(self.value)))
-    #
-    #     self.gonogo = measure.measure_go_nogo_calculate(
-    #         float(self.ui.tableWidget_measure.item(2, self.column).text()),
-    #         float(self.ui.tableWidget_measure.item(3, self.column).text()),
-    #         float(self.value)
-    #     )
-    #
-    #     self.ui.tableWidget_project_item.setItem(0, 0, QTableWidgetItem(str(self.ui.tableWidget_measure.item(1, self.column).text())))
-    #     if self.gonogo == True:
-    #         self.ui.label_gonogo.setPixmap(QtGui.QPixmap(BASE_DIR + "\\GO.PNG"))
-    #         self.ui.tableWidget_project_item.setItem(0, 6, QTableWidgetItem("GO"))
-    #     elif self.gonogo == False:
-    #         self.ui.label_gonogo.setPixmap(QtGui.QPixmap(BASE_DIR + "\\NOGO.PNG"))
-    #         self.ui.tableWidget_project_item.setItem(0, 6, QTableWidgetItem("NOGO"))
-    #
-    #     self.measure_value_new_data = [self.value,
-    #                                    self.ui.tableWidget_measure.item(6, self.column).text(),  # 單位
-    #                                    self.measure_time,  # 量測日期
-    #                                    self.ui.tableWidget_measure.item(2, self.column).text(),  # 上限
-    #                                    self.ui.tableWidget_measure.item(3, self.column).text(),  # 下限
-    #                                    self.ui.tableWidget_measure.item(7, self.column).text(),  # 量測次數
-    #                                    self.ui.tableWidget_measure.item(1, self.column).text(),  # 量測部位
-    #                                    self.measure_number_list[int((self.row + self.number) - 9)]  # 量測次數
-    #                                    ]
-    #     self.number = self.number + 1
-    #
-    #     if len(self.measure_value_data) > 0:
-    #         for item in self.measure_value_data:
-    #             if item[7] == self.measure_value_new_data[7] and item[6] == self.measure_value_new_data[6]:
-    #                 self.measure_value_data.remove(item)
-    #                 print("清除資料")
-    #     self.measure_value_data.append(self.measure_value_new_data) #新增new_data
-    #     for item in self.measure_value_data:
-    #         if item[6] == self.ui.tableWidget_measure.item(1, self.column).text():
-    #             self.measure_yield.append(item[0])
-    #     (value_excellent, value_inferior, all) = measure.measure_Yield(
-    #         float(self.ui.tableWidget_measure.item(2, self.column).text()),
-    #         float(self.ui.tableWidget_measure.item(3, self.column).text()),
-    #         self.measure_yield)
-    #     self.measure_yield.clear()
-    #     self.ui.tableWidget_project_item.setItem(0, 3, QTableWidgetItem(str(value_excellent)))
-    #     self.ui.tableWidget_project_item.setItem(0, 4, QTableWidgetItem(str(value_inferior)))
-    #     self.ui.tableWidget_project_item.setItem(0, 5, QTableWidgetItem(str(all)))
+        self.ui.tableWidget_measure.setItem(self.row + self.number, self.column, QTableWidgetItem(str(self.value)))
+        self.gonogo = measure.measure_go_nogo_calculate(
+            float(self.ui.tableWidget_measure.item(2, self.column).text()),
+            float(self.ui.tableWidget_measure.item(3, self.column).text()),
+            float(self.value))
+        self.ui.tableWidget_project_item.setItem(0, 0, QTableWidgetItem(str(self.ui.tableWidget_measure.item(0, self.column).text())))
+        if self.gonogo == True:
+            self.ui.label_gonogo.setPixmap(QtGui.QPixmap(BASE_DIR + "\\GO.PNG"))
+            self.ui.tableWidget_project_item.setItem(0, 6, QTableWidgetItem("GO"))
+            self.ui.tableWidget_measure.item(self.row + self.number, self.column).setTextAlignment(
+                QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)  # 設定輸入文字置中以及上下置中
+
+        elif self.gonogo == False:
+            self.ui.label_gonogo.setPixmap(QtGui.QPixmap(BASE_DIR + "\\NOGO.PNG"))
+            self.ui.tableWidget_project_item.setItem(0, 6, QTableWidgetItem("NOGO"))
+            self.ui.tableWidget_measure.item(self.row + self.number, self.column).setForeground(QtGui.QBrush(QtGui.QColor(255, 0, 0)))#設置文字為紅色
+            self.ui.tableWidget_measure.item(self.row + self.number, self.column).setTextAlignment(
+                QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)  # 設定輸入文字置中以及上下置中
+
+        self.measure_value_new_data = [self.value,
+                                       self.ui.tableWidget_measure.item(6, self.column).text(),  # 單位
+                                       self.measure_time,  # 量測日期
+                                       self.ui.tableWidget_measure.item(2, self.column).text(),  # 上限
+                                       self.ui.tableWidget_measure.item(3, self.column).text(),  # 下限
+                                       self.ui.tableWidget_measure.item(7, self.column).text(),  # 量測次數
+                                       self.ui.tableWidget_measure.item(0, self.column).text(),  # 量測部位
+                                       self.measure_number_list[(self.row + self.number) - 8]  # 量測次數
+                                       ]
+        if len(self.measure_value_data) > 0:
+            self.delet_data = []
+            for item in self.measure_value_data:
+                if item[7] == self.measure_value_new_data[7] and item[6] == self.measure_value_new_data[6]:
+                    # print(self.measure_value_data.index(item))
+                    # data_position = self.measure_value_data.index(item)
+                    self.delet_data = item[:]
+                    self.measure_value_data_check = False
+                    # self.measure_value_data.insert(data_position, self.measure_value_new_data)# 新增new_data
+                elif item[7] != self.measure_value_new_data[7] or item[6] != self.measure_value_new_data[6]:
+                    self.measure_value_data_check = True
+
+            #檢查旗標
+            if self.measure_value_data_check is False:
+                dele_number = self.measure_value_data.index(self.delet_data) #位置
+                self.measure_value_data.remove(self.delet_data)
+                self.measure_value_data.insert(dele_number, self.measure_value_new_data)
+                # self.measure_value_data.append(self.measure_value_new_data)
+                print("清除資料:%s" % self.delet_data)
+            if self.delet_data != [] and self.measure_value_data_check == True:
+                dele_number = self.measure_value_data.index(self.delet_data)
+                self.measure_value_data.remove(self.delet_data)
+                # self.measure_value_data.append(self.measure_value_new_data)
+                self.measure_value_data.insert(dele_number, self.measure_value_new_data)
+                print("清除資料:%s" % self.delet_data)
+            elif self.measure_value_data_check is True:
+                self.find_number_check = False
+                # self.find_item = []
+                # for item in self.measure_value_data: #抓出量測次數
+                #     if self.measure_value_new_data[-2] == item[-2]:
+                #         find_number = list(item[7])[-1]
+                #         if find_number > list(self.measure_value_new_data[-1])[-1]:
+                #             self.find_number_check = True
+                #             self.find_item.append(item[-1][:])
+                if self.find_number_check is True:
+                    print("Ture")
+                    pass
+                elif self.find_number_check is False:
+                    self.measure_value_data.append(self.measure_value_new_data)
+                print("新增資料:%s" % self.measure_value_new_data)
+
+
+        elif len(self.measure_value_data) == 0:
+            self.measure_value_data.append(self.measure_value_new_data)
+        self.number = self.number + 1
+
+        for item in self.measure_value_data:
+            if item[6] == self.ui.tableWidget_measure.item(0, self.column).text():
+                self.measure_yield.append(item[0])
+
+        #計算良數
+        (value_excellent, value_inferior, all) = measure.measure_Yield(
+            float(self.ui.tableWidget_measure.item(2, self.column).text()),
+            float(self.ui.tableWidget_measure.item(3, self.column).text()),
+            self.measure_yield)
+
+        #人機介面數值
+        self.ui.tableWidget_project_item.setItem(0, 3, QTableWidgetItem(str(value_excellent)))
+        self.ui.tableWidget_project_item.setItem(0, 4, QTableWidgetItem(str(value_inferior)))
+        self.ui.tableWidget_project_item.setItem(0, 5, QTableWidgetItem(str(all)))
+        self.ui.tableWidget_project_item.setItem(0, 2, QTableWidgetItem(str(self.ui.tableWidget_measure.item(6, self.column).text())))
+
+        if len(self.measure_yield)+1 > len(self.measure_number_list):
+            number = int(len(self.measure_number_list) / 3)  # 計算要增加幾項
+            print(number)
+            for i in range(int(self.ui.tableWidget_measure.item(6, self.column).text())):
+                measure_number = ("%s - %s" % (number + 1, i + 1))
+                self.measure_number_list.append(measure_number)
+                self.ui.tableWidget_measure.setRowCount(int(len(self.measure_item)) + int(len(self.measure_number_list)))
+                self.ui.tableWidget_measure.setVerticalHeaderLabels(self.measure_item + self.measure_number_list)
+        #清除數值串列
+        self.measure_yield.clear()
 
 
     def measure_tool_start(self):
@@ -275,6 +346,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     #     # self.ui.tableWidget_project_item.setItem(0, 2, QTableWidgetItem(self.ui.tableWidget_measure.item(self.row, 7).text()))
     #     print(row)
 
+    def closeEvent(self, QCloseEvent):
+        self.reply = QMessageBox.question(self, "警示", "確定離開量測頁面?", QMessageBox.Yes, QMessageBox.No)
+        if self.reply == QMessageBox.Yes:
+            self.hide()
+            self.window = TOOLWindow()
+            self.window.show()
+        elif self.reply == QMessageBox.No:
+            QCloseEvent.ignore()
     def get_blank_form(self): #選擇查看
         column = self.ui.tableWidget_measure.currentColumn()
         row = self.ui.tableWidget_measure.currentRow()
@@ -361,6 +440,7 @@ class project_check_window(QtWidgets.QWidget,Ui_widget_projectcheck):
         self.ui.pushButton_close.clicked.connect(self.close)
         self.ui.pushButton_cinfirm_project.clicked.connect(self.open_start_measure_window)
         self.ui.pushButton_rest_project.clicked.connect(self.resst_project)
+        self.measure_check = False
 
         #匯入量測專案資料
         self.project_name_item = ["專案名稱", "建立日期", "建立人", "備註"]
@@ -370,24 +450,26 @@ class project_check_window(QtWidgets.QWidget,Ui_widget_projectcheck):
         for i in range(len(self.sql_project_data)):
             for i_2 in range(0,len(self.sql_project_data[i])):
                 self.ui.tableWidget_project.setItem(i, i_2, QTableWidgetItem(str(self.sql_project_data[i][i_2])))
-        self.ui.tableWidget_project.setEditTriggers(QAbstractItemView.NoEditTriggers)#不可編輯
+        self.ui.tableWidget_project.setEditTriggers(QAbstractItemView.DoubleClicked)#不可編輯
         self.ui.tableWidget_project.resizeColumnsToContents()#調整欄位大小
         self.ui.tableWidget_project.resizeRowsToContents()#調整欄位大小
         self.ui.tableWidget_project.setSelectionBehavior(self.ui.tableWidget_project.SelectRows)
         self.ui.tableWidget_project.itemClicked.connect(self.set_work_order_measure_item)
 
         #匯入量測部位圖片
+        DIRT_TEMP = create_temp()
         self.measure_image_project = self.sql.sql_image_all_project_name()
         for name in self.measure_image_project:
             measure_item = self.sql.sql_all_image_item("%s" % name)
             os.makedirs(BASE_DIR + "\\measure_item_image\\%s"%name)
             for item in measure_item:
                 data = self.sql.sql_image_base64data(item)
-                sql_connect.save("measure_item_image/%s/%s" %(name, item), data, "jpg")
+                sql_connect.save("measure_item_image/%s/%s" % (name, item), data, "jpg")
                 print("load image ok")
 
-    def set_work_order_measure_item(self,item):
-        print("選擇專案名稱:%s"%self.sql_project_data[item.row()][0])#專案名稱
+    def set_work_order_measure_item(self, item):
+        print("選擇專案名稱:%s" % self.sql_project_data[item.row()][0])#專案名稱
+        porject_name = self.sql_project_data[item.row()][0]
         self.ui.lineEdit_now_project_name.setText(self.sql_project_data[item.row()][0])
         #匯入工單表單內容
         self.work_order_item = ["專案名稱", "工單", "件號", "件數", "材料", "機台名稱", "批號", "班別", "量測人員", "備註"]
@@ -407,7 +489,7 @@ class project_check_window(QtWidgets.QWidget,Ui_widget_projectcheck):
         self.ui.tableWidget_work_order.setSelectionBehavior(self.ui.tableWidget_work_order.SelectRows)
 
         #匯入量測item
-        self.measure_item = ["量測專案名稱", "量測項目名稱", "量測數值上限", "量測數值下限", "量測數值中心", "量測小數點位數", "量測單位", "量測點數", "量測次數", "量具名稱"]
+        self.measure_item = ["量測專案名稱", "量測項目名稱", "量測數值上限", "量測數值下限", "量測數值中心", "量測小數點位數", "量測單位", "量測點數", "量測次數", "量具名稱", "量測部位圖"]
         self.measure_item_data = sql.sql_find_measure_item(self.sql_project_data[item.row()][0])
         print(self.measure_item_data)
         self.ui.tableWidget_measureitem.setRowCount(len(self.measure_item_data))
@@ -417,18 +499,39 @@ class project_check_window(QtWidgets.QWidget,Ui_widget_projectcheck):
         for i in range(len(self.measure_item_data)):
             for i_2 in range(len(self.measure_item_data[i])):
                 self.ui.tableWidget_measureitem.setItem(i, i_2, QTableWidgetItem(str(self.measure_item_data[i][i_2])))
+                self.ui.tableWidget_measureitem.item(i, i_2).setTextAlignment(QtCore.Qt.AlignCenter)
         self.ui.tableWidget_measureitem.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.ui.tableWidget_measureitem.resizeColumnsToContents()
         self.ui.tableWidget_measureitem.resizeRowsToContents()
         self.ui.tableWidget_measureitem.setSelectionBehavior(self.ui.tableWidget_measureitem.SelectRows)
+
+        self.image_item = []
+        for item in self.measure_item_data:
+            self.image_item.append(item[1])
+        for item in self.image_item:
+            icon = QTableWidgetItem(QtGui.QIcon(BASE_DIR + "\\measure_item_image\\%s\\%s.jpg"%(str(porject_name), str(item))), "")
+            print(self.image_item.index(item))
+            self.ui.tableWidget_measureitem.setItem(self.image_item.index(item), 10, icon)
+            self.ui.tableWidget_measureitem.setIconSize(QtCore.QSize(300, 300))
+            self.ui.tableWidget_measureitem.setColumnWidth(10, 300)
+            self.ui.tableWidget_measureitem.setRowHeight(self.image_item.index(item), 300)
+
+
+        # icon = QTableWidgetItem(QtGui.QIcon(BASE_DIR + "\\measure_item_image\\%s\\%s.jpg"%(str(porject_name), "2")),'')
+        # self.ui.tableWidget_measureitem.setItem(0, 10, icon)
+        # self.ui.tableWidget_measureitem.setIconSize(QtCore.QSize(300, 300))
+        # self.ui.tableWidget_measureitem.setColumnWidth(10, 350)
+        # self.ui.tableWidget_measureitem.setRowHeight(0, 350)
         try:
             if len(self.measure_item_data) == 0:
                 self.measure_check = False
             else:
                 self.measure_check = True
-
         except:
             pass
+        self.measure_image_project = self.sql.sql_image_all_project_name()
+
+
     def resst_project(self):
         self.ui.tableWidget_project.clear()
         self.ui.tableWidget_project.setEditTriggers(QAbstractItemView.CurrentChanged)
@@ -457,7 +560,7 @@ class project_check_window(QtWidgets.QWidget,Ui_widget_projectcheck):
 
     def open_start_measure_window(self, QCloseEvent):
         self.measurer = self.ui.lineEdit_measure_staff.text()
-        if self.measure_check ==True:
+        if self.measure_check == True:
             if self.measurer is not "":
                 self.hide()
                 print(self.ui.lineEdit_now_project_name.text())
@@ -502,9 +605,9 @@ class TOOLWindow(QtWidgets.QWidget, Ui_Form):
         self.set_ok_con = True
 
         if self.set_ok_con is None:
-            self.reply = QMessageBox.question(self, 'Message', "量測量具還未設定", QMessageBox.Yes)
+            self.reply = QMessageBox.question(self, '警示', "量測量具還未設定", QMessageBox.Yes)
         if get_internet_stat is False:
-            self.reply = QMessageBox.warning(self, 'Message', "沒有網路連線", QMessageBox.Yes)
+            self.reply = QMessageBox.warning(self, '警示', "沒有網路連線", QMessageBox.Yes)
         elif self.set_ok_con is not None and get_internet_stat is True:
             self.hide()
             sql = sql_connect.sql_connect()
@@ -515,15 +618,13 @@ class TOOLWindow(QtWidgets.QWidget, Ui_Form):
         com = self.set_ok_con
         self.com_signal.emit(com)
 
-
-
     def open_tool_test(self):
         self.window = tool_test(toolconnect.com2())
         self.window.mysignal.connect(self.get_signal)
         self.window.show()
 
     def closeEvent(self, QCloseEvent):
-        self.reply = QMessageBox.question(self, 'Message',"確定離開量測系統?", QMessageBox.Yes, QMessageBox.No)
+        self.reply = QMessageBox.question(self, '警示',"確定離開量測系統?", QMessageBox.Yes, QMessageBox.No)
         if self.reply == QMessageBox.Yes:
             QCloseEvent.accept()
             # delet() 刪除資料夾
@@ -638,15 +739,14 @@ class measure_thread(QThread):
     def set_port(self, port):
         self.set_port = port
     def run(self):
-        pass
-
-        # while self.is_on:
-        #     returenlist = self.serial_test(self.set_port)
-        #     if self.is_on == False:
-        #         break
-        #     self.measure_value.emit(str(returenlist[0]))
-        #     self.measure_tool_name.emit(str(returenlist[1]))
-        #     self.measure_unit.emit(str(returenlist[2]))
+        # pass
+        while self.is_on:
+            returenlist = self.serial_test(self.set_port)
+            if self.is_on == False:
+                break
+            self.measure_value.emit(str(returenlist[0]))
+            self.measure_tool_name.emit(str(returenlist[1]))
+            self.measure_unit.emit(str(returenlist[2]))
 
     def serial_test(self,comnumber):
         COM_PORT = ("COM%s" % comnumber)  # 指定通訊埠名稱
@@ -727,6 +827,7 @@ if __name__ == '__main__' :
     # w.show()
     # sys.exit(app.exec_())
     # TEMP_DIR =
+
     BASE_DIR = os.path.dirname(os.path.realpath(__file__))
     DIRT_TEMP = create_temp()
 
