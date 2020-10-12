@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1066, 803)
+        MainWindow.resize(929, 827)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
@@ -78,15 +78,17 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_item_image.sizePolicy().hasHeightForWidth())
         self.label_item_image.setSizePolicy(sizePolicy)
+        self.label_item_image.setMaximumSize(QtCore.QSize(800, 600))
         self.label_item_image.setText("")
         self.label_item_image.setPixmap(QtGui.QPixmap(":/newPrefix/messageImage_1600330717366.jpg"))
         self.label_item_image.setScaledContents(True)
+        self.label_item_image.setAlignment(QtCore.Qt.AlignCenter)
         self.label_item_image.setObjectName("label_item_image")
         self.splitter = QtWidgets.QSplitter(self.splitter_2)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
         self.tableWidget_project_item = QtWidgets.QTableWidget(self.splitter)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Ignored)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tableWidget_project_item.sizePolicy().hasHeightForWidth())
@@ -96,7 +98,7 @@ class Ui_MainWindow(object):
         self.tableWidget_project_item.setRowCount(0)
         self.label_gonogo = QtWidgets.QLabel(self.splitter)
         self.label_gonogo.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_gonogo.sizePolicy().hasHeightForWidth())
@@ -127,11 +129,12 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tableWidget_measure.sizePolicy().hasHeightForWidth())
         self.tableWidget_measure.setSizePolicy(sizePolicy)
+        self.tableWidget_measure.setMaximumSize(QtCore.QSize(3000, 600))
         self.tableWidget_measure.setObjectName("tableWidget_measure")
         self.tableWidget_measure.setColumnCount(0)
         self.tableWidget_measure.setRowCount(0)
         self.label_5 = QtWidgets.QLabel(self.splitter_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Ignored)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_5.sizePolicy().hasHeightForWidth())
@@ -144,7 +147,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.splitter_4, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1066, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 929, 21))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -157,14 +160,10 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-
         self.label_project_name.setText(_translate("MainWindow", "量測專案："))
         self.label_project_item_name.setText(_translate("MainWindow", "量測項目："))
         self.label_gonogo.setText(_translate("MainWindow", "GONOGO"))
         self.label_project_item_name_2.setText(_translate("MainWindow", "量測人員："))
-
-
-
 
 class Ui_widget_projectcheck(object):
     def setupUi(self, widget):

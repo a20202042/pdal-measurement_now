@@ -124,6 +124,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.ui.tableWidget_measure.doubleClicked.connect(self.double_clicked)
         self.ui.tableWidget_measure.cellChanged.connect(self.value_insert) #輸入量測資料
+        self.showMaximized()
 
     def double_clicked(self):
         self.row = self.ui.tableWidget_measure.currentRow()
@@ -223,6 +224,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ui.canvas.draw()
 
     def setmeasurevalue(self, value): #量具輸入
+        self.measure_time = time.strftime("%Y-%m-%d  %H:%M:%S", time.localtime())#量測數值日期
         self.value = value
         if self.row != self.ui.tableWidget_measure.currentRow() or self.row is None:
             self.number = 0
@@ -363,12 +365,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # except:
         #     value_check = False
         #     pass
-        #
-        # self.ui.label_item_image.setPixmap(QtGui.QPixmap(
-        #     BASE_DIR + "\\measure_item_image\\%s\\%s" % (self.project_name, self.measure_image_item[column])))
-        # self.ui.label_item_image.setScaledContents(True)
-        # self.ui.label_project_item_name.setText("量測項目：%s" % self.measure_image_item[column])
-        # self.ui.tableWidget_project_item.setItem(0, 2, QTableWidgetItem(self.ui.tableWidget_measure.item(7, column).text()))
+
+        self.ui.label_item_image.setPixmap(QtGui.QPixmap(
+            BASE_DIR + "\\measure_item_image\\%s\\%s" % (self.project_name, str(self.ui.tableWidget_measure.item(0, column).text().split(" - ")[0]))))
+        self.ui.label_project_item_name.setText("量測項目：%s" % str(self.ui.tableWidget_measure.item(0, column).text().split(" - ")[0]))
+        self.ui.tableWidget_project_item.setItem(0, 2, QTableWidgetItem(self.ui.tableWidget_measure.item(7, column).text()))
         # for item in self.measure_value_data:
         #     if item[6] == self.ui.tableWidget_measure.item(1, column).text():
         #         self.measure_yield.append(item[0])
@@ -739,14 +740,14 @@ class measure_thread(QThread):
     def set_port(self, port):
         self.set_port = port
     def run(self):
-        # pass
-        while self.is_on:
-            returenlist = self.serial_test(self.set_port)
-            if self.is_on == False:
-                break
-            self.measure_value.emit(str(returenlist[0]))
-            self.measure_tool_name.emit(str(returenlist[1]))
-            self.measure_unit.emit(str(returenlist[2]))
+        pass
+        # while self.is_on:
+            # returenlist = self.serial_test(self.set_port)
+            # if self.is_on == False:
+            #     break
+            # self.measure_value.emit(str(returenlist[0]))
+            # self.measure_tool_name.emit(str(returenlist[1]))
+            # self.measure_unit.emit(str(returenlist[2]))
 
     def serial_test(self,comnumber):
         COM_PORT = ("COM%s" % comnumber)  # 指定通訊埠名稱

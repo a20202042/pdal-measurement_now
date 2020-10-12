@@ -17,7 +17,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-#         self.plot_()
+        self.plot_()
 #         self.measure_value = measure_thread()
 #         self.measure_value.measure_value.connect(self.setmeasurevalue)
 #
@@ -28,15 +28,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 #         self.tb.addAction(self.new)
 #         self.new = QtWidgets.QAction(QtGui.QIcon(BASE_DIR + "\\measure_choose.png"), "project_choose", self)
 #         self.tb.addAction(self.new)
-#     def plot_(self):
-#         ax = self.ui.figure.add_axes([0.125, 0.125, 0.8, 0.8])
-#         ax.plot([0.002, 0.0012, 0.003, 0.002, 0.002], marker='.', mfc='w', label="量測數值") #ro = 定義點狀
-#         ax.plot([0.003, 0.003, 0.003, 0.003, 0.003], label="上限")
-#         plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']  #設置中文字 不然打不出來
-#         plt.xlabel("量測次數")
-#         plt.ylabel("量測數值")
-#         plt.legend()
-#         # self.ui.canvas.draw()
+    def plot_(self):
+        ax = self.ui.figure.add_axes([0.125, 0.125, 0.8, 0.8])
+        # ax.plot([0.002, 0.0012, 0.003, 0.002], marker='.', mfc='w', label="量測數值") #ro = 定義點狀
+        # ax.plot([0.003, 0.003, 0.003, 0.003], label="上限")
+        # plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']  #設置中文字 不然打不出來
+        # plt.xlabel("量測次數")
+        # plt.ylabel("量測數值")
+        # plt.legend()
+        plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']  #設置中文字 不然打不出來
+        ax.plot([0, 0, 0] ,label="上限", c='brown')
+        y = ["1.33", "1.93", "1.63"] #次數
+        x = ["1-1", "1-2", "1-3"] #名稱
+        plt.xlabel("量測次數")
+        plt.ylabel("量測數值")
+        plt.title("量測數據")
+        plt.scatter(x, y,marker="o", c='brown')
+        self.ui.canvas.draw()
+
+        # self.ui.canvas.draw()
 #     def setmeasurevalue(self,value):
 #         print(value)
 # class measure_thread(QThread):
