@@ -78,7 +78,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_item_image.sizePolicy().hasHeightForWidth())
         self.label_item_image.setSizePolicy(sizePolicy)
-        self.label_item_image.setMaximumSize(QtCore.QSize(800, 600))
+        self.label_item_image.setMaximumSize(QtCore.QSize(800, 500))
         self.label_item_image.setText("")
         self.label_item_image.setPixmap(QtGui.QPixmap(":/newPrefix/messageImage_1600330717366.jpg"))
         self.label_item_image.setScaledContents(True)
@@ -129,20 +129,30 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tableWidget_measure.sizePolicy().hasHeightForWidth())
         self.tableWidget_measure.setSizePolicy(sizePolicy)
-        self.tableWidget_measure.setMaximumSize(QtCore.QSize(3000, 600))
+        self.tableWidget_measure.setMaximumSize(QtCore.QSize(1300, 600))
         self.tableWidget_measure.setObjectName("tableWidget_measure")
         self.tableWidget_measure.setColumnCount(0)
         self.tableWidget_measure.setRowCount(0)
-        self.label_5 = QtWidgets.QLabel(self.splitter_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Ignored)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_5.sizePolicy().hasHeightForWidth())
-        self.label_5.setSizePolicy(sizePolicy)
-        self.label_5.setText("")
-        self.label_5.setPixmap(QtGui.QPixmap(":/newPrefix/螢幕擷取畫面 2020-09-17 163652.png"))
-        self.label_5.setScaledContents(True)
-        self.label_5.setObjectName("label_5")
+        sizePolicy.setHeightForWidth(self.tableWidget_measure.sizePolicy().hasHeightForWidth())
+        # -------------------------------------------------------
+        self.figure = plt.figure()
+        # self.label_5 = QtWidgets.QLabel(self.splitter_3)
+        self.canvas = FigureCanvas(self.figure)
+        self.splitter_3.addWidget(self.canvas)
+
+
+        sizePolicy.setHeightForWidth(self.canvas.sizePolicy().hasHeightForWidth())
+        self.canvas.setSizePolicy(sizePolicy)
+
+        self.canvas.setSizePolicy(sizePolicy)
+        # self.label_5.setText("")
+        # self.label_5.setPixmap(QtGui.QPixmap(":/newPrefix/螢幕擷取畫面 2020-09-17 163652.png"))
+        # self.label_5.setScaledContents(True)
+        # self.label_5.setObjectName("label_5")
+
         self.verticalLayout_2.addWidget(self.splitter_3)
         self.gridLayout.addWidget(self.splitter_4, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -159,7 +169,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "量測式窗"))
         self.label_project_name.setText(_translate("MainWindow", "量測專案："))
         self.label_project_item_name.setText(_translate("MainWindow", "量測項目："))
         self.label_gonogo.setText(_translate("MainWindow", "GONOGO"))
@@ -337,7 +347,7 @@ class Ui_widget_projectcheck(object):
 
     def retranslateUi(self, widget):
         _translate = QtCore.QCoreApplication.translate
-        widget.setWindowTitle(_translate("widget", "Form"))
+        widget.setWindowTitle(_translate("widget", "專案選擇"))
         self.label.setText(_translate("widget", "1. 量測專案 \n"
                                                 " Measurement project"))
         self.pushButton_rest_project.setText(_translate("widget", "重新整理專案 \n"

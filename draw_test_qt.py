@@ -36,16 +36,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # plt.xlabel("量測次數")
         # plt.ylabel("量測數值")
         # plt.legend()
-        plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']  #設置中文字 不然打不出來
-        ax.plot([0, 0, 0] ,label="上限", c='brown')
-        y = ["1.33", "1.93", "1.63"] #次數
+
+        # ax.plot([0, 0, 0] ,label="上限", c='brown')
+# ------------------------------ 散點圖
+        plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']  # 設置中文字 不然打不出來
+        y = [1.33, 1.93, 1.63] #次數
         x = ["1-1", "1-2", "1-3"] #名稱
         plt.xlabel("量測次數")
         plt.ylabel("量測數值")
         plt.title("量測數據")
-        plt.scatter(x, y,marker="o", c='brown')
+        plt.scatter(x, y, marker="o", c='brown')
+# -------------------------------折線圖
+        yline_up = [1, 1, 1]
+        yline_down = [2, 2, 2]
+        plt.plot(x, yline_up, label="上限")
+        plt.plot(x, yline_down, label="下限")
+        plt.legend() #標題顯示
         self.ui.canvas.draw()
-
+# --------------------------------
         # self.ui.canvas.draw()
 #     def setmeasurevalue(self,value):
 #         print(value)

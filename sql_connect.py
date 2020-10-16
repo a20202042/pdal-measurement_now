@@ -6,15 +6,20 @@ class sql_connect:
         self.sql_user = 'root'
         self.sql_charset ='utf8'
         self.sql_password = "rsa+0414018"
-        self.conn = MySQLdb.connect(host=self.sql_host, user=self.sql_user, passwd=self.sql_password, db=self.sqldb,
-                                    charset=self.sql_charset)# 新增 charset="utf8"才會顯示中文
-        self.cursor = self.conn.cursor()
-        self.all_name =["mysite_project", "mysite_measure_items", "mysite_measurement_work_order_create", "mysite_measuring_tool"]
+
+        self.all_name = ["mysite_project", "mysite_measure_items", "mysite_measurement_work_order_create",
+                         "mysite_measuring_tool"]
         self.project_item = ["project_name", "project_create_time", "founder_name", "remake"]
-        self.project_work_order = [ "project_name", "sor_no", "part_no", "number_of_part", "materials", "manufacturing_machine",
+        self.project_work_order = ["project_name", "sor_no", "part_no", "number_of_part", "materials",
+                                   "manufacturing_machine",
                                    "batch_number", "class", "inspector", "remake"]
         self.measur_tool = ['tool_name', "tool_type", "tool_precision", "tool_test_date"]
         self.measure_item = ["project_name", "tool_name", "measure_items", "upper", "lower", "center", "decimal_piaces"]
+
+        self.conn = MySQLdb.connect(host=self.sql_host, user=self.sql_user, passwd=self.sql_password, db=self.sqldb,
+                                        charset=self.sql_charset)  # 新增 charset="utf8"才會顯示中文
+        self.cursor = self.conn.cursor()
+
     def sql_all_date(self,table_name):#取所有資料:量具、專案名稱
         SQL = ("SELECT * FROM  %s" % table_name)
         self.cursor.execute(SQL)
@@ -99,22 +104,33 @@ class sql_connect:
     #         print(sql)
     #     except:
     #         pass
-    def sql_inaert_value(self,value_data):
+    def sql_insert_value(self,value_data):
         SQL = ("SELECT mysite_measure_items.id "
                " From  mysite_measure_items "
-               " WHERE mysite_measure_items.measurement_items = '%s'"%value_data[3])
+               " WHERE mysite_measure_items.measurement_items = '%s'"%value_data[-4])
         self.cursor.execute(SQL)
         measure_item = list(self.cursor.fetchone())[0]
-        SQL = ("SELECT mysite_project.id  "
-               " From  mysite_project "
-               " WHERE mysite_project.project_name= '%s'"%value_data[4])
+
+        SQL = ("SELECT mysite_measure_items.project_measure_id  "
+               " From  mysite_measure_items "
+               " WHERE mysite_measure_items.measurement_items = '%s'" % value_data[6])
         self.cursor.execute(SQL)
         meaure_project_id = list(self.cursor.fetchone())[0]
-        SQL = ("INSERT INTO mysite_measure_values(measure_value, measure_unit,measure_time,measure_name_id, measure_project_id)" \
-               " VALUE('%s','%s','%s', '%s','%s')") % \
-              (value_data[0], value_data[1], value_data[2], measure_item, meaure_project_id)
+
+        SQL = ("SELECT mysite_measuring_tool.id  "
+               " From  mysite_measuring_tool "
+               " WHERE mysite_measuring_tool.toolname = '%s'" % value_data[-2])
         self.cursor.execute(SQL)
+        measure_tool_name = list(self.cursor.fetchone())[0]
+        print(value_data)
+        # ['10', 'mm', '2020-10-16  17:44:36', '66.375', '66.400', '3', '17.Length', '1 - 1', 'Mitutoyo CD - 8"AX']
+        SQL = ("INSERT INTO mysite_measure_values(measure_value, measure_unit,measure_time,measure_name_id, measure_project_id,measure_man, measure_number)"
+               " VALUE('%s','%s','%s','%s','%s','%s','%s')") %(value_data[0], value_data[1], value_data[2], measure_item, meaure_project_id, value_data[-1], value_data[-3] )
+        a = self.cursor.execute(SQL)
+        print(type(a))
         self.conn.commit()
+        a = self.conn
+        b = self.cursor
         print('insert ok')
 
     def sql_delet_data(self):
@@ -161,6 +177,18 @@ def save(file_name, base64_data, pict_type):
         jiema = base64.b64decode(base64_data)  # 解碼
         file.write(jiema)  # 將解碼資料寫入到片圖中
 
+
+
+
+import tkinter.messagebox as msgbox
+
+try:
+    s = sql_connect()
+    a = ['10', 'mm', '2020-10-16  17:44:36', '66.375', '66.400', '3', '17.Length', '1 - 1', 'Mitutoyo CD - 8"AX',
+         "海笑"]  # s.sql_inaert_value(['10', 'mm', '2020-10-16  15:42:29', '66.375', '66.400', '3', '17.Length - 1', '1 - 1'])
+    s.sql_insert_value(a)
+except Exception as e:
+    msgbox.showerror('ERROR', '{}\n{}'.format(type(e), e))
 # all = s.sql_all_date("mysite_measure_values")
 # for i in all:
 #     for i_2 in i:

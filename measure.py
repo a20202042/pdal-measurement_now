@@ -1,6 +1,9 @@
 def measure_go_nogo_calculate(upper, lower, value):
     gonogo = bool
-    if value <= upper and lower<=value:
+    print(float(value))
+    print(float(upper))
+    print(float(lower))
+    if float(value) <= float(upper) and float(lower)<=float(value):
         gonogo = True
     else:
         gonogo = False
