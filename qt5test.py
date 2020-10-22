@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QMessageBox, QAbstractItemView, QTableWidgetItem
-from qt5 import Ui_MainWindow, Ui_Form, Ui_toolcheck, Ui_widget_projectcheck , Ui_check
+from qt5 import Ui_MainWindow, Ui_Form, Ui_toolcheck, Ui_widget_projectcheck , Ui_check, data_check
 import sys, re, time, serial.tools.list_ports
 import toolconnect, sql_connect, measure
 from PyQt5.QtCore import QThread, pyqtSignal
@@ -173,25 +173,30 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         print("tool_bar模式%s" % tool_bar)
         if tool_bar == "UP project":
             print("上傳資料")
-            self.reply = QMessageBox.question(self, "提示", "確認上傳量測數據?", QMessageBox.Yes, QMessageBox.No)
-            if self.reply == QMessageBox.Yes:
-                self.measure_data_check()
-            elif self.reply == QMessageBox.No:
-                pass
+            self.window = date_updata_window(self.measure_value_data, self.measure_item_data)
+            self.window.show()
+            # self.reply = QMessageBox.question(self, "提示", "確認上傳量測數據?", QMessageBox.Yes, QMessageBox.No)
+            # if self.reply == QMessageBox.Yes:
+            #     self.measure_data_check()
+            # elif self.reply == QMessageBox.No:
+            #     pass
 
-
-    def measure_data_check(self):
-        measure_data_item_number = []
-        for item in self.measure_item_data:
-            for item_2 in self.measure_value_data:
-                if item[0] == item_2[6]:
-                    measure_data_item_number.append(item[6])
-                    break
-        print(measure_data_item_number)
-
-        # if len(self.measure_item_data) !=
-        for item in self.measure_value_data:
-            print(len(self.measure_item_data))
+# 上傳
+    # def measure_data_check(self):
+    #     self.check = True
+    #     measure_data_item_number = []
+    #     for item in self.measure_item_data:
+    #         for item_2 in self.measure_value_data:
+    #             if item[0] == item_2[6]:
+    #                 measure_data_item_number.append(item[6])
+    #                 break
+    #     if len(self.measure_item_data) != len(measure_data_item_number):
+    #         self.reply = QMessageBox.warning(self, "未量測完所有項目", "有量測項目未量測完成", QMessageBox.Yes)
+    #         print("Test")
+    #         self.check = False
+    #
+    #     for item in self.measure_value_data:
+    #         pass
 
     def unit_check(self, unit):
         print(unit)
@@ -292,7 +297,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                        self.ui.tableWidget_measure.item(6, self.column).text(),  # 量測次數
                                        self.ui.tableWidget_measure.item(0, self.column).text(),  # 量測部位
                                        self.measure_number_list[int(self.row - 8)],# 量測次數
-                                       self.ui.tableWidget_measure.item(7, self.column).text()
+                                       self.ui.tableWidget_measure.item(7, self.column).text(),
+                                       self.measurer
                                        ]
             if len(self.measure_value_data) > 0:
                 self.measure_value_data_check = True
@@ -410,7 +416,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                        self.ui.tableWidget_measure.item(7, self.column).text(),  # 量測次數
                                        self.ui.tableWidget_measure.item(0, self.column).text(),  # 量測部位
                                        self.measure_number_list[(self.row + self.number) - 8],  # 量測次數
-                                       self.ui.tableWidget_measure.item(7, self.column).text()
+                                       self.ui.tableWidget_measure.item(7, self.column).text(),
+                                       self.measurer
                                        ]
         if len(self.measure_value_data) > 0:
             self.delet_data = []
@@ -464,8 +471,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #計算良數
         (value_excellent, value_inferior, all) = measure.measure_Yield(
+            float(self.ui.tableWidget_measure.item(1, self.column).text()),
             float(self.ui.tableWidget_measure.item(2, self.column).text()),
-            float(self.ui.tableWidget_measure.item(3, self.column).text()),
             self.measure_yield)
 
         #人機介面數值
@@ -618,6 +625,62 @@ class tool_measure_choose(QtWidgets.QWidget, Ui_check):
         self.close()
     def close(self):
         self.hide()
+
+class date_updata_window(QtWidgets.QWidget,data_check):
+    def __init__(self, measure_data, measure_item):
+        super(date_updata_window, self).__init__()
+        self.project_name = str()
+        self.ui = data_check()
+        self.setWindowIcon(QtGui.QIcon('D:/GitHub/pythonProject/ico.ico'))
+        self.ui.setupUi(self)
+        self.ui.pushButton.clicked.connect(self.update)
+        self.ui.pushButton_2.clicked.connect(self.close)
+        self.measure_data = measure_data
+        self.measure_item = measure_item
+        print(self.measure_item)
+        print(self.measure_data)
+        self.measure_item_title = []
+        for item in measure_item:
+            self.measure_item_title.append(item[0])
+        self.ui.tableWidget.setRowCount(len(self.measure_item_title))
+        self.ui.tableWidget.setColumnCount(1)
+        self.ui.tableWidget.setVerticalHeaderLabels(self.measure_item_title)
+
+        for item in self.measure_item:
+            item_list = []
+            for data in self.measure_data:
+                if item[0] == data[-4]:
+                    item_list.append(data)
+                    self.ui.tableWidget.setItem(self.measure_item_title.index(item[0]), 0, QTableWidgetItem(str(len(item_list))))
+                    self.ui.tableWidget.item(self.measure_item_title.index(item[0]), 0).setTextAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                else:
+                    self.ui.tableWidget.setItem(self.measure_item_title.index(item[0]), 0,QTableWidgetItem("沒有數據"))
+                    # self.ui.tableWidget.item(self.measure_item_title.index(item[0], 0)).setForeground(QtGui.QBrush(QtGui.QColor(255, 0, 0)))
+                    self.ui.tableWidget.item(self.measure_item_title.index(item[0]), 0).setTextAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+
+            if self.measure_data == []:
+                self.ui.tableWidget.setItem(self.measure_item_title.index(item[0]), 0,QTableWidgetItem("沒有數據"))
+                self.ui.tableWidget.item(self.measure_item_title.index(item[0]), 0).setTextAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                # self.ui.tableWidget.item(self.measure_item_title.index(item[0], 0)).setForeground(QtGui.QBrush(QtGui.QColor(255, 0, 0)))
+        self.ui.tableWidget.setEditTriggers(QAbstractItemView.DoubleClicked)
+
+    def close(self):
+        self.hide()
+    def update(self):
+        self.check()
+        self.measure_value_insert()
+        self.hide()
+    def check(self):
+        pass
+    def measure_value_insert(self):
+        try:
+            sql = sql_connect.sql_connect()
+            sql.sql_insert_value(self.measure_data)
+        except Exception as err:
+            self.reply = QMessageBox.warning(self, "警示", "連線錯誤 \n %s" % err, QMessageBox.Yes)
+        print("updata ok")
+
+
 
 class project_check_window(QtWidgets.QWidget,Ui_widget_projectcheck):
     def __init__(self, data_all, tool_ok_com):

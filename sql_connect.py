@@ -104,33 +104,36 @@ class sql_connect:
     #         print(sql)
     #     except:
     #         pass
-    def sql_insert_value(self,value_data):
-        SQL = ("SELECT mysite_measure_items.id "
-               " From  mysite_measure_items "
-               " WHERE mysite_measure_items.measurement_items = '%s'"%value_data[-4])
-        self.cursor.execute(SQL)
-        measure_item = list(self.cursor.fetchone())[0]
 
-        SQL = ("SELECT mysite_measure_items.project_measure_id  "
-               " From  mysite_measure_items "
-               " WHERE mysite_measure_items.measurement_items = '%s'" % value_data[6])
-        self.cursor.execute(SQL)
-        meaure_project_id = list(self.cursor.fetchone())[0]
+    def sql_insert_value(self, data):
+        data_list = []
+        for value_data in data:
+            SQL = ("SELECT mysite_measure_items.id "
+                   " From  mysite_measure_items "
+                   " WHERE mysite_measure_items.measurement_items = '%s'" % value_data[-4])
+            self.cursor.execute(SQL)
+            measure_item = list(self.cursor.fetchone())[0]
 
-        SQL = ("SELECT mysite_measuring_tool.id  "
-               " From  mysite_measuring_tool "
-               " WHERE mysite_measuring_tool.toolname = '%s'" % value_data[-2])
-        self.cursor.execute(SQL)
-        measure_tool_name = list(self.cursor.fetchone())[0]
-        print(value_data)
+            SQL = ("SELECT mysite_measure_items.project_measure_id  "
+                   " From  mysite_measure_items "
+                   " WHERE mysite_measure_items.measurement_items = '%s'" % value_data[6])
+            self.cursor.execute(SQL)
+            meaure_project_id = list(self.cursor.fetchone())[0]
+
+            SQL = ("SELECT mysite_measuring_tool.id  "
+                   " From  mysite_measuring_tool "
+                   " WHERE mysite_measuring_tool.toolname = '%s'" % value_data[-2])
+            self.cursor.execute(SQL)
+            measure_tool_id = list(self.cursor.fetchone())[0]
+            data_list.append(((value_data[0], value_data[1], value_data[2], measure_item, meaure_project_id, value_data[-1], value_data[-3],measure_tool_id)))
+        print(data_list)
+
         # ['10', 'mm', '2020-10-16  17:44:36', '66.375', '66.400', '3', '17.Length', '1 - 1', 'Mitutoyo CD - 8"AX']
-        SQL = ("INSERT INTO mysite_measure_values(measure_value, measure_unit,measure_time,measure_name_id, measure_project_id,measure_man, measure_number)"
-               " VALUE('%s','%s','%s','%s','%s','%s','%s')") %(value_data[0], value_data[1], value_data[2], measure_item, meaure_project_id, value_data[-1], value_data[-3] )
-        a = self.cursor.execute(SQL)
-        print(type(a))
+        SQL = ("INSERT INTO mysite_measure_values(measure_value, measure_unit,measure_time,measure_name_id, measure_project_id,measure_man, measure_number, measure_tool_id)"
+               " VALUE(%s, %s, %s, %s, %s, %s, %s, %s)")
+        # a = self.cursor.execute(SQL)
+        self.cursor.executemany(SQL, data_list)
         self.conn.commit()
-        a = self.conn
-        b = self.cursor
         print('insert ok')
 
     def sql_delet_data(self):
@@ -178,17 +181,19 @@ def save(file_name, base64_data, pict_type):
         file.write(jiema)  # 將解碼資料寫入到片圖中
 
 
-
-
+#
 import tkinter.messagebox as msgbox
 
-try:
-    s = sql_connect()
-    a = ['10', 'mm', '2020-10-16  17:44:36', '66.375', '66.400', '3', '17.Length', '1 - 1', 'Mitutoyo CD - 8"AX',
-         "海笑"]  # s.sql_inaert_value(['10', 'mm', '2020-10-16  15:42:29', '66.375', '66.400', '3', '17.Length - 1', '1 - 1'])
-    s.sql_insert_value(a)
-except Exception as e:
-    msgbox.showerror('ERROR', '{}\n{}'.format(type(e), e))
+# try:
+#     s = sql_connect()
+#     a = ['10', 'mm', '2020-10-16  17:44:36', '66.375', '66.400', '3', '17.Length', '1 - 1', 'Mitutoyo CD - 8"AX', "海笑"]  # s.sql_inaert_value(['10', 'mm', '2020-10-16  15:42:29', '66.375', '66.400', '3', '17.Length - 1', '1 - 1'])
+#     s.sql_insert_value(a)
+# except Exception as e:
+#     msgbox.showerror('ERROR', '{}\n{}'.format(type(e), e))
+
+
+
+
 # all = s.sql_all_date("mysite_measure_values")
 # for i in all:
 #     for i_2 in i:
