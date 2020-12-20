@@ -14,7 +14,7 @@ def serial_test(comnumber):
     COM_PORT = ("COM%s"%comnumber )# 指定通訊埠名稱
     BAUD_RATES = 57600  # 設定傳輸速率
     BYTE_SIZE = 8
-    PARITY = 'N'
+    PARITY = 'N' #校驗位
     STOP_BITS = 1
     ser = serial.Serial(COM_PORT, BAUD_RATES, BYTE_SIZE, PARITY, STOP_BITS, timeout=None)
     string_slice_start = 8

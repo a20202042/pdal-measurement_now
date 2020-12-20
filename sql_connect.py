@@ -1,10 +1,12 @@
-import MySQLdb, base64
+import MySQLdb, base64, time
+
+
 class sql_connect:
     def __init__(self):
         self.sql_host = '163.18.69.14'
         self.sqldb = 'pdal-measurement'
         self.sql_user = 'root'
-        self.sql_charset ='utf8'
+        self.sql_charset = 'utf8'
         self.sql_password = "rsa+0414018"
 
         self.all_name = ["mysite_project", "mysite_measure_items", "mysite_measurement_work_order_create",
@@ -17,10 +19,10 @@ class sql_connect:
         self.measure_item = ["project_name", "tool_name", "measure_items", "upper", "lower", "center", "decimal_piaces"]
 
         self.conn = MySQLdb.connect(host=self.sql_host, user=self.sql_user, passwd=self.sql_password, db=self.sqldb,
-                                        charset=self.sql_charset)  # 新增 charset="utf8"才會顯示中文
+                                    charset=self.sql_charset)  # 新增 charset="utf8"才會顯示中文
         self.cursor = self.conn.cursor()
 
-    def sql_all_date(self,table_name):#取所有資料:量具、專案名稱
+    def sql_all_date(self, table_name):  # 取所有資料:量具、專案名稱
         SQL = ("SELECT * FROM  %s" % table_name)
         self.cursor.execute(SQL)
         data = self.cursor.fetchall()
@@ -34,6 +36,17 @@ class sql_connect:
         # if table_name =="mysite_measuring_tool":
         #     self.list_data.insert(0,self.project_work_order)
         print("%s_all_date:%s" % (table_name, list_data))
+        return list_data
+    def sql_find_project (self, project_name):
+        SQL = (" SELECT * "
+               " From mysite_project"
+               " WHERE mysite_project.project_name = '%s' ")% project_name
+        self.cursor.execute(SQL)
+        data = self.cursor.fetchall()
+        list_data = []
+        for i in data :
+            list_data.append(i)
+        print(data)
         return list_data
     def sql_find_work_order(self, project_name):
         SQL = ("SELECT * "
@@ -52,12 +65,13 @@ class sql_connect:
         return list_data
 
     def sql_find_measure_item(self, project_name):
-        SQL = ("SELECT mysite_measure_items.measurement_items,mysite_measure_items.upper_limit, mysite_measure_items.lower_limit, mysite_measure_items.specification_center,"
-               " mysite_measure_items.decimal_piaces, mysite_measure_items.measure_unit, mysite_measure_items.measure_points, mysite_measure_items.measure_number,"
-               " mysite_measure_items.too_name_id "
-               " From  mysite_measure_items "
-               " WHERE mysite_measure_items.project_measure_id"
-               "=(SELECT mysite_project.id FROM mysite_project WHERE mysite_project.project_name='%s')" % project_name)
+        SQL = (
+                    "SELECT mysite_measure_items.measurement_items,mysite_measure_items.upper_limit, mysite_measure_items.lower_limit, mysite_measure_items.specification_center,"
+                    " mysite_measure_items.decimal_piaces, mysite_measure_items.measure_unit, mysite_measure_items.measure_points, mysite_measure_items.measure_number,"
+                    " mysite_measure_items.too_name_id "
+                    " From  mysite_measure_items "
+                    " WHERE mysite_measure_items.project_measure_id"
+                    "=(SELECT mysite_project.id FROM mysite_project WHERE mysite_project.project_name='%s')" % project_name)
         self.measure_item = ["量測專案名稱", "量測項目名稱", "量測數值上限", "量測數值下限", "量測數值中心",
                              "量測小數點位數", "量測單位", "量測點數", "量測次數", "量具名稱"]
         self.cursor.execute(SQL)
@@ -65,19 +79,21 @@ class sql_connect:
         list_data = []
         for item in data:
             data = list(item)
-            SQL = ("SELECT mysite_measuring_tool.toolname From  mysite_measuring_tool WHERE mysite_measuring_tool.id = %s" % data[-1])
+            SQL = (
+                        "SELECT mysite_measuring_tool.toolname From  mysite_measuring_tool WHERE mysite_measuring_tool.id = %s" %
+                        data[-1])
             self.cursor.execute(SQL)
             tool_name = self.cursor.fetchall()[0][0]
-            data.pop(-1) #量具名稱
+            data.pop(-1)  # 量具名稱
             data.append(tool_name)
             data.insert(0, project_name)
             list_data.append(data)
         return list_data
 
-    def sql_all_project_data(self,table_name,project_name):#取關於量測專案資料:工單、量測項目
+    def sql_all_project_data(self, table_name, project_name):  # 取關於量測專案資料:工單、量測項目
         SQL = ("SELECT * FROM  %s" % table_name)
         self.cursor.execute(SQL)
-        date_all=self.cursor.fetchall()
+        date_all = self.cursor.fetchall()
         self.project_date = list()
         for item in date_all:
             if item[1] == project_name:
@@ -107,6 +123,7 @@ class sql_connect:
 
     def sql_insert_value(self, data):
         data_list = []
+        time_now = time.strftime("%Y-%m-%d  %H:%M:%S", time.localtime())
         for value_data in data:
             SQL = ("SELECT mysite_measure_items.id "
                    " From  mysite_measure_items "
@@ -125,12 +142,15 @@ class sql_connect:
                    " WHERE mysite_measuring_tool.toolname = '%s'" % value_data[-2])
             self.cursor.execute(SQL)
             measure_tool_id = list(self.cursor.fetchone())[0]
-            data_list.append(((value_data[0], value_data[1], value_data[2], measure_item, meaure_project_id, value_data[-1], value_data[-3],measure_tool_id)))
+            data_list.append(((
+            value_data[0], value_data[1], value_data[2], measure_item, meaure_project_id, value_data[-1],
+            value_data[-3], measure_tool_id, time_now)))
         print(data_list)
 
         # ['10', 'mm', '2020-10-16  17:44:36', '66.375', '66.400', '3', '17.Length', '1 - 1', 'Mitutoyo CD - 8"AX']
-        SQL = ("INSERT INTO mysite_measure_values(measure_value, measure_unit,measure_time,measure_name_id, measure_project_id,measure_man, measure_number, measure_tool_id)"
-               " VALUE(%s, %s, %s, %s, %s, %s, %s, %s)")
+        SQL = (
+            "INSERT INTO mysite_measure_values(measure_value, measure_unit,measure_time,measure_name_id, measure_project_id,measure_man, measure_number, measure_tool_id, time_now)"
+            " VALUE(%s, %s, %s, %s, %s, %s, %s, %s, %s)")
         # a = self.cursor.execute(SQL)
         self.cursor.executemany(SQL, data_list)
         self.conn.commit()
@@ -140,9 +160,10 @@ class sql_connect:
         SQL = ("DELETE FROM mainsite_project WHERE name ='123'")
         self.cursor.execute(SQL)
         self.conn.commit()
-#---------------------------------------------- 圖片下載
 
-    def sql_image_all_project_name(self):#取所有資料:量具、專案名稱
+    # ---------------------------------------------- 圖片下載
+
+    def sql_image_all_project_name(self):  # 取所有資料:量具、專案名稱
         SQL = ("SELECT mysite_project.project_name "
                " From  mysite_project")
         self.cursor.execute(SQL)
@@ -153,16 +174,17 @@ class sql_connect:
             new_data.append(item[0])
         return new_data
 
-    def sql_image_base64data(self, item_name): #已量測部位抓取
+    def sql_image_base64data(self, item_name):  # 已量測部位抓取
         SQL = ("SELECT mysite_measure_items.image_base64_data "
                " From  mysite_measure_items"
-               " WHERE mysite_measure_items.measurement_items ='%s'"%item_name)
+               " WHERE mysite_measure_items.measurement_items ='%s'" % item_name)
         self.cursor.execute(SQL)
         data = self.cursor.fetchall()
         data = data[0][0]
         return data
 
-    def sql_all_image_item(self,project_name):#取所有資料:量具、專案名稱
+    def sql_all_image_item(self, project_name):  # 取所有資料:量具、專案名稱
+        # print(project_name)
         SQL = ("SELECT mysite_measure_items.measurement_items "
                " From  mysite_measure_items"
                " WHERE mysite_measure_items.project_measure_id"
@@ -173,7 +195,24 @@ class sql_connect:
         for item in data:
             d = item[0]
             new_data.append(d)
+        print(new_data)
         return new_data
+
+    def sql_project_id_key_name(self, project_name):  # 取所有資料:量具、專案名稱
+        # print(project_name)
+        SQL = ("SELECT mysite_measure_items.measurement_items, mysite_measure_items.id "
+               " From  mysite_measure_items"
+               " WHERE mysite_measure_items.project_measure_id"
+               "=ANY(SELECT mysite_project.id FROM mysite_project WHERE mysite_project.project_name='%s')" % project_name)
+        self.cursor.execute(SQL)
+        data = self.cursor.fetchall()
+        new_data = []
+        for item in data:
+            d = item[0]
+            new_data.append(d)
+        print(new_data)
+        return new_data
+
 
 def save(file_name, base64_data, pict_type):
     with open('%s.%s' % (file_name, pict_type), 'wb') as file:  # wd 寫入覆蓋文件
@@ -190,8 +229,6 @@ import tkinter.messagebox as msgbox
 #     s.sql_insert_value(a)
 # except Exception as e:
 #     msgbox.showerror('ERROR', '{}\n{}'.format(type(e), e))
-
-
 
 
 # all = s.sql_all_date("mysite_measure_values")

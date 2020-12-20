@@ -22,7 +22,7 @@
 
 %If (Qt_5_8_0 -)
 
-class QSGRenderNode : QSGNode /NoDefaultCtors/
+class QSGRenderNode : QSGNode
 {
 %TypeHeaderCode
 #include <qsgrendernode.h>

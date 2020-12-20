@@ -65,6 +65,7 @@ Module {
         exportMetaObjectRevisions: [0, 1, 11, 4, 7]
         attachedType: "QQuickLayoutAttached"
         Method { name: "invalidateSenderItem" }
+        Method { name: "_q_dumpLayoutTree" }
     }
     Component {
         name: "QQuickLayoutAttached"
