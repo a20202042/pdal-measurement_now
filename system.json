@@ -1,0 +1,12 @@
+{
+  "sql": {
+    "host": "163.18.69.14",
+    "name": "pdal-measurement",
+    "user": "root",
+    "charset": "utf8",
+    "password": "rsa+0414018"
+  },
+  "measure_tool": {
+    "number": 0
+  }
+}
