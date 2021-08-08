@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QMessageBox, QAbstractItemView, QTableWidgetItem
-from qt5 import Ui_MainWindow, Ui_Form, Ui_toolcheck, Ui_widget_projectcheck, Ui_check, data_check, measure_show_project
+from qt5 import Ui_MainWindow, Ui_Form, Ui_toolcheck, Ui_widget_projectcheck, Ui_check, data_check, \
+    measure_show_project, Ui_Form_system_set
 import sys, re, time, serial.tools.list_ports
 import toolconnect, sql_connect, measure
 from PyQt5.QtCore import QThread, pyqtSignal
@@ -8,6 +9,7 @@ import os
 import shutil
 import matplotlib.pyplot as plt
 import global_var as gvar
+import read_data_json as read_json
 
 # GLOBAL VARIABLES
 selected_com_port = ''
@@ -994,9 +996,16 @@ class TOOLWindow(QtWidgets.QWidget, Ui_Form):
         self.ui.tool_test.clicked.connect(self.open_tool_test)
         self.ui.start_measure.clicked.connect(self.open_porject_check_window)
         self.ui.excit.clicked.connect(QtCore.QCoreApplication.instance().quit)
+        self.ui.syste_setting.clicked.connect(self.system_set)
         # self.ui.excit.clicked.connect(self.close)
         self.main_window_center()
         self.set_ok_con = None
+
+    def system_set(self):
+        self.hide()
+        self.window = system_set()
+        self.window.show()
+        print("system_set")
 
     def main_window_center(self):
         screen = QtWidgets.QDesktopWidget().screenGeometry()
@@ -1065,6 +1074,66 @@ class TOOLWindow(QtWidgets.QWidget, Ui_Form):
 #
 # def hand(self, data):
 #     self.lineEdit_toolvalue.setText(data)
+class system_set(QtWidgets.QWidget, Ui_Form_system_set):
+    def __init__(self):
+        super(system_set, self).__init__()
+        self.ui = Ui_Form_system_set()
+        self.ui.setupUi(self)
+        self.setWindowIcon(QtGui.QIcon(BASE_DIR + '\\ico.ico'))
+        self.data_reply()
+        self.ui.sql_reset_button_2.clicked.connect(self.reset_sql_data)
+        self.ui.sql_reply_button_2.clicked.connect(self.reply_sql_data)
+        self.ui.sql_set_button.clicked.connect(self.set_sql_data)
+
+    def data_reply(self):
+        gvar.system_data = read_json.read_data(gvar.system_json)
+        print(gvar.system_data)
+        try:
+            self.ui.lineEdit_host.setText(gvar.system_data["sql"]['host'])
+            self.ui.lineEdit_name.setText(gvar.system_data['sql']['name'])
+            self.ui.lineEdit_user.setText(gvar.system_data['sql']['user'])
+            self.ui.lineEdit_charset.setText(gvar.system_data['sql']['charset'])
+            self.ui.lineEdit_password.setText(gvar.system_data['sql']['password'])
+        except:
+            pass
+
+    def reset_sql_data(self):
+        print("reset_sql_data")
+        self.ui.lineEdit_host.clear()
+        self.ui.lineEdit_name.clear()
+        self.ui.lineEdit_user.clear()
+        self.ui.lineEdit_charset.clear()
+        self.ui.lineEdit_password.clear()
+        for item in gvar.system_data['sql']:
+            gvar.system_data['sql'][item] = ''
+        # print(gvar.system_data)
+
+    def reply_sql_data(self):
+        print("reply_data")
+        data = read_json.read_data(gvar.system_json)
+        self.ui.lineEdit_host.setText(data["sql"]['host'])
+        self.ui.lineEdit_name.setText(data['sql']['name'])
+        self.ui.lineEdit_user.setText(data['sql']['user'])
+        self.ui.lineEdit_charset.setText(data['sql']['charset'])
+        self.ui.lineEdit_password.setText(data['sql']['password'])
+
+    def set_sql_data(self):
+        print('set_sql_data')
+        data = read_json.read_data(gvar.system_json)
+        if self.ui.lineEdit_host.text() != '' and self.ui.lineEdit_user.text() != '' and self.ui.lineEdit_name.text() != '' and self.ui.lineEdit_charset.text() != '' and self.ui.lineEdit_password.text() != '':
+            if data['sql'] != gvar.system_data['sql']:
+                gvar.system_data['sql']['host'] = self.ui.lineEdit_host.text()
+                gvar.system_data['sql']['user'] = self.ui.lineEdit_user.text()
+                gvar.system_data['sql']['name'] = self.ui.lineEdit_name.text()
+                gvar.system_data['sql']['charset'] = self.ui.lineEdit_charset.text()
+                gvar.system_data['sql']['password'] = self.ui.lineEdit_password.text()
+                print(gvar.system_data)
+            else:
+                pass
+        else:
+            self.reply = QMessageBox.question(self, "警示", "SQL未設置完成", QMessageBox.Yes)
+
+
 
 class tool_test(QtWidgets.QWidget, Ui_toolcheck):
     mysignal = pyqtSignal(str)

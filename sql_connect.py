@@ -1,5 +1,5 @@
 import MySQLdb, base64, time
-
+import global_var as gvar
 
 class sql_connect:
     def __init__(self):
@@ -8,6 +8,12 @@ class sql_connect:
         self.sql_user = 'root'
         self.sql_charset = 'utf8'
         self.sql_password = "rsa+0414018"
+
+        # self.sql_host = gvar.sql_host
+        # self.sqldb = gvar.sql_db
+        # self.sql_user = gvar.sql_user
+        # self.sql_charset = gvar.sql_charset
+        # self.sql_password = gvar.sql_password
 
         self.all_name = ["mysite_project", "mysite_measure_items", "mysite_measurement_work_order_create",
                          "mysite_measuring_tool"]
@@ -37,17 +43,19 @@ class sql_connect:
         #     self.list_data.insert(0,self.project_work_order)
         print("%s_all_date:%s" % (table_name, list_data))
         return list_data
-    def sql_find_project (self, project_name):
+
+    def sql_find_project(self, project_name):
         SQL = (" SELECT * "
                " From mysite_project"
-               " WHERE mysite_project.project_name = '%s' ")% project_name
+               " WHERE mysite_project.project_name = '%s' ") % project_name
         self.cursor.execute(SQL)
         data = self.cursor.fetchall()
         list_data = []
-        for i in data :
+        for i in data:
             list_data.append(i)
         print(data)
         return list_data
+
     def sql_find_work_order(self, project_name):
         SQL = ("SELECT * "
                " From  mysite_measurement_work_order_create "
@@ -66,12 +74,12 @@ class sql_connect:
 
     def sql_find_measure_item(self, project_name):
         SQL = (
-                    "SELECT mysite_measure_items.measurement_items,mysite_measure_items.upper_limit, mysite_measure_items.lower_limit, mysite_measure_items.specification_center,"
-                    " mysite_measure_items.decimal_piaces, mysite_measure_items.measure_unit, mysite_measure_items.measure_points, mysite_measure_items.measure_number,"
-                    " mysite_measure_items.too_name_id "
-                    " From  mysite_measure_items "
-                    " WHERE mysite_measure_items.project_measure_id"
-                    "=(SELECT mysite_project.id FROM mysite_project WHERE mysite_project.project_name='%s')" % project_name)
+                "SELECT mysite_measure_items.measurement_items,mysite_measure_items.upper_limit, mysite_measure_items.lower_limit, mysite_measure_items.specification_center,"
+                " mysite_measure_items.decimal_piaces, mysite_measure_items.measure_unit, mysite_measure_items.measure_points, mysite_measure_items.measure_number,"
+                " mysite_measure_items.too_name_id "
+                " From  mysite_measure_items "
+                " WHERE mysite_measure_items.project_measure_id"
+                "=(SELECT mysite_project.id FROM mysite_project WHERE mysite_project.project_name='%s')" % project_name)
         self.measure_item = ["量測專案名稱", "量測項目名稱", "量測數值上限", "量測數值下限", "量測數值中心",
                              "量測小數點位數", "量測單位", "量測點數", "量測次數", "量具名稱"]
         self.cursor.execute(SQL)
@@ -80,8 +88,8 @@ class sql_connect:
         for item in data:
             data = list(item)
             SQL = (
-                        "SELECT mysite_measuring_tool.toolname From  mysite_measuring_tool WHERE mysite_measuring_tool.id = %s" %
-                        data[-1])
+                    "SELECT mysite_measuring_tool.toolname From  mysite_measuring_tool WHERE mysite_measuring_tool.id = %s" %
+                    data[-1])
             self.cursor.execute(SQL)
             tool_name = self.cursor.fetchall()[0][0]
             data.pop(-1)  # 量具名稱
@@ -143,8 +151,8 @@ class sql_connect:
             self.cursor.execute(SQL)
             measure_tool_id = list(self.cursor.fetchone())[0]
             data_list.append(((
-            value_data[0], value_data[1], value_data[2], measure_item, meaure_project_id, value_data[-1],
-            value_data[-3], measure_tool_id, time_now)))
+                value_data[0], value_data[1], value_data[2], measure_item, meaure_project_id, value_data[-1],
+                value_data[-3], measure_tool_id, time_now)))
         print(data_list)
 
         # ['10', 'mm', '2020-10-16  17:44:36', '66.375', '66.400', '3', '17.Length', '1 - 1', 'Mitutoyo CD - 8"AX']

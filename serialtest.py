@@ -10,7 +10,6 @@ def serial_test():
 
     string_slice_start = 8
     string_slice_period = 12
-
     try:
         while True:
             while ser.in_waiting:  # 若收到序列資料…
