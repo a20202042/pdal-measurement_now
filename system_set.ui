@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>345</width>
-    <height>361</height>
+    <height>345</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -288,6 +288,13 @@
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" colspan="2">
+         <widget class="QPushButton" name="pushButton_create_tool">
+          <property name="text">
+           <string>新增量具</string>
           </property>
          </widget>
         </item>

@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(345, 361)
+        Form.resize(345, 345)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -151,6 +151,9 @@ class Ui_Form(object):
         self.label_10.setAlignment(QtCore.Qt.AlignCenter)
         self.label_10.setObjectName("label_10")
         self.gridLayout_3.addWidget(self.label_10, 0, 1, 1, 1)
+        self.pushButton_create_tool = QtWidgets.QPushButton(self.layoutWidget1)
+        self.pushButton_create_tool.setObjectName("pushButton_create_tool")
+        self.gridLayout_3.addWidget(self.pushButton_create_tool, 0, 2, 1, 2)
         self.tabWidget.addTab(self.tab_4, "")
         self.gridLayout_2.addWidget(self.tabWidget, 0, 0, 1, 1)
 
@@ -187,4 +190,5 @@ class Ui_Form(object):
         self.label_8.setText(_translate("Form", "連接COM3"))
         self.label_9.setText(_translate("Form", "USB_PORT"))
         self.label_10.setText(_translate("Form", "量測數值"))
+        self.pushButton_create_tool.setText(_translate("Form", "新增量具"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("Form", "量具連接設定"))

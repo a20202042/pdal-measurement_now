@@ -1,12 +1,18 @@
+import PyQt5
+import PyQt5.QtWidgets
+import PyQt5.QtCore
+import qt5
+import PyQt5.sip
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QMessageBox, QAbstractItemView, QTableWidgetItem
 from qt5 import Ui_MainWindow, Ui_Form, Ui_toolcheck, Ui_widget_projectcheck, Ui_check, data_check, \
-    measure_show_project, Ui_Form_system_set
+    measure_show_project, Ui_Form_system_set,tool_create
 import sys, re, time, serial.tools.list_ports
 import toolconnect, sql_connect, measure
 from PyQt5.QtCore import QThread, pyqtSignal
 import os
 import shutil
+import matplotlib
 import matplotlib.pyplot as plt
 import global_var as gvar
 import read_data_json as read_json
@@ -1084,7 +1090,12 @@ class system_set(QtWidgets.QWidget, Ui_Form_system_set):
         self.ui.sql_reset_button_2.clicked.connect(self.reset_sql_data)
         self.ui.sql_reply_button_2.clicked.connect(self.reply_sql_data)
         self.ui.sql_set_button.clicked.connect(self.set_sql_data)
+        self.ui.pushButton_create_tool.clicked.connect(self.tool_create)
 
+    def tool_create(self):
+        print("tool_create")
+        self.window = system_tool_create()
+        self.window.show()
     def data_reply(self):
         gvar.system_data = read_json.read_data(gvar.system_json)
         print(gvar.system_data)
@@ -1133,6 +1144,23 @@ class system_set(QtWidgets.QWidget, Ui_Form_system_set):
         else:
             self.reply = QMessageBox.question(self, "警示", "SQL未設置完成", QMessageBox.Yes)
 
+class system_tool_create(QtWidgets.QWidget, tool_create):
+    def __init__(self):
+        super(system_tool_create, self).__init__()
+        self.ui = tool_create()
+        self.ui.setupUi(self)
+        self.setWindowIcon(QtGui.QIcon(BASE_DIR + '\\ico.ico'))
+        self.ui.pushButton_measure_tool_create.clicked.connect(self.insert_tool_name)
+
+    def insert_tool_name(self):
+        print("insert_tool_name")
+        self.tool_name = self.ui.lineEdit_create_tool.text()
+        print(self.tool_name)
+        self.ui.lineEdit_create_tool.clear()
+
+    def insert_table_tool_name(self):
+        data = read_json.read_data(gvar.system_json)
+        self.measure_tool_name = data["measure_tool"]["measure_tool_name"]
 
 
 class tool_test(QtWidgets.QWidget, Ui_toolcheck):
@@ -1203,9 +1231,12 @@ class tool_test(QtWidgets.QWidget, Ui_toolcheck):
 
     def measure_tooltest_start(self):
         print(self.chick_tool_ok)
+        print(self.ui.comboBox_comname.currentText())
         if self.chick_tool_ok:
             self.reply = QMessageBox.question(self, 'Message', "量具已設定完成", QMessageBox.Yes)
-        else:
+        if self.ui.comboBox_comname.currentText() == '':
+            self.reply = QMessageBox.question(self, 'Message', "未選擇量具", QMessageBox.Yes)
+        elif self.ui.comboBox_comname.currentText() != '' and self.chick_tool_ok == False:
             self.chick_tool_ok = True
             self.set_con = re.findall(r"\d", self.ui.comboBox_comname.currentText())
             print('self.set_con=%s' % self.set_con[0])
